@@ -75,5 +75,6 @@ graph LR
 
 - **mcp.template.json 不可直接使用** — 必须通过 setup.sh 生成
 - **GITHUB_TOKEN 永不入库** — 已在 .gitignore 中排除含 Token 的文件
+- 克隆无需认证（公开仓库），但 **push 需要 Token** — WorkBuddy 会读取 `~/.workbuddy/mcp.json` 中的 Token 来认证，见 [DEPLOY.md](./DEPLOY.md)
 - 自建 MCP 脚本（`scripts/`）直接复制到 `~/.workbuddy/mcp/`
 - 每次修改 MCP 配置后提交此仓库，新机器 pull 即可同步
