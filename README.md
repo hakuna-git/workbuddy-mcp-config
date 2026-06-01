@@ -46,7 +46,7 @@ pip install zotero-mcp-server
 |-----|------|------|
 | zotero | 本地 | Zotero 文献管理，需 Zotero 客户端运行 |
 | stata-mcp | uvx | Stata 统计分析，通过 uvx 自动拉取 |
-| github-mcp | 自建 | GitHub 文件读取/搜索/提交列表（纯标准库） |
+| github-mcp | 自建 | GitHub 读写（9 tools: 读文件/搜仓库/列提交&分支/创建&修改仓库/增删文件/批量提交） |
 | connector-proxy | HTTP | 聚合代理（默认禁用） |
 
 ## 占位符说明
