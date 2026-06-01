@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v2.1.0 (2026-06-01)
+
+### macOS 部署支持
+
+**新增文档：**
+- `docs/macos-notes.md` — macOS 代码签名冲突根因分析 + 3 种解决方案
+- 更新 `DEPLOY.md` — 新增 macOS 特别说明和故障排查章节
+- 更新 `README.md` — 目录结构和注意事项中加入 macOS 文档引用
+
+**新增脚本：**
+- `scripts/zotero-mcp-wrapper.sh` — 可复用 wrapper 模板，用 `/bin/bash` 绕过 macOS managed Python 代码签名问题
+
 ## v2.0.0 (2026-06-01)
 
 ### github-mcp upgrade: read-only → read/write
