@@ -19,20 +19,25 @@ mcp-config/
 
 ## 快速开始（新机器）
 
+### 方式一：让 WorkBuddy 帮你部署（推荐）
+
+在新机器上打开 WorkBuddy，复制 [DEPLOY.md](./DEPLOY.md) 中的提示词发给它，WorkBuddy 会自动克隆仓库、运行脚本、引导你完成手动步骤。
+
+### 方式二：手动部署
+
 ```bash
 # 1. 克隆仓库
-git clone <repo-url> && cd mcp-config
+git clone https://github.com/hakuna-git/workbuddy-mcp-config.git && cd workbuddy-mcp-config
 
 # 2. 运行部署脚本
 bash setup.sh
 
 # 3. 手动填入 GITHUB_TOKEN
 vim ~/.workbuddy/mcp.json
-# 将 __GITHUB_TOKEN__ 替换为你的 GitHub Personal Access Token
 
 # 4. 安装依赖
 brew install uv          # stata-mcp 需要 uvx
-pip install zotero-mcp-server  # 或 brew install zotero-mcp
+pip install zotero-mcp-server
 ```
 
 ## 当前包含的 MCP
