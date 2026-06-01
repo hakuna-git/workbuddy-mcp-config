@@ -36,8 +36,9 @@
 | 检测 Python | 🤖 自动 | 优先 WorkBuddy 托管版，回退系统版 |
 | 检测二进制目录 | 🤖 自动 | `~/.local/bin` 或自建 |
 | 复制脚本和文档 | 🤖 自动 | 到 `~/.workbuddy/mcp/` |
-| 生成 mcp.json | 🤖 自动 | 占位符替换为本地路径 |
-| 填入 GITHUB_TOKEN | ✋ 手动 | Token 不入库，需手动填写 |
+| 保留已有 Token | 🔒 自动 | 重复运行不会丢失 GITHUB_TOKEN |
+| 生成 mcp.json | 🤖 自动 | 占位符替换为本地路径，新增 MCP 自动合并 |
+| 填入 GITHUB_TOKEN | ✋ 手动 | 首次部署需手动填写（后续同步自动保留） |
 | 安装依赖 | 🤖+✋ | WorkBuddy 可执行 brew/pip 安装 |
 | 信任 MCP | ✋ 手动 | 需在 WorkBuddy 连接器管理页面点击 |
 
@@ -50,7 +51,21 @@
 确认 GITHUB_TOKEN 已填入，然后告诉我哪些 MCP 还需要手动信任。
 ```
 
-## 部署后维护（修改配置并推送）
+## 同步新配置
+
+仓库有更新（新增 MCP、升级脚本等）时，重新运行 setup.sh 即可同步。
+脚本会**自动保留已有的 GITHUB_TOKEN**，不会丢失：
+
+```
+我的 workbuddy-mcp-config 仓库有更新，请帮我同步：
+1. 克隆最新版本到 /tmp
+   git clone https://github.com/你的用户名/workbuddy-mcp-config.git /tmp/workbuddy-mcp-config-sync
+2. 运行部署脚本同步
+   cd /tmp/workbuddy-mcp-config-sync && bash setup.sh --stata-cwd=/path/to/your/project
+3. 告诉我新增了哪些内容，以及是否需要重新信任 MCP
+```
+
+## 推送修改
 
 github-mcp v2.0 已包含写操作，直接通过 MCP 推送，无需 git push：
 

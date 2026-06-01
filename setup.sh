@@ -2,6 +2,7 @@
 # ============================================================
 # WorkBuddy MCP 一键部署脚本
 # 用法: bash setup.sh [--stata-cwd /path/to/project]
+# 幂等安全 — 重复运行自动保留已有 GITHUB_TOKEN
 # ============================================================
 set -euo pipefail
 
@@ -71,15 +72,34 @@ else
     echo "  Stata 工作目录: $STATA_CWD"
 fi
 
-# ---- 5. 生成 mcp.json ----
-echo "[5/5] 生成 mcp.json..."
+# ---- 5. 保留已有 Token（同步模式安全） ----
+GITHUB_TOKEN_VALUE="__GITHUB_TOKEN__"
+if [ -f "$MCP_JSON" ]; then
+    # 从已有 mcp.json 提取 GITHUB_TOKEN，下次运行不会丢失
+    EXISTING_TOKEN=$(python3 -c "
+import json, sys
+try:
+    with open('$MCP_JSON') as f:
+        d = json.load(f)
+    t = d.get('mcpServers',{}).get('github-mcp',{}).get('env',{}).get('GITHUB_TOKEN','')
+    if t and t != '__GITHUB_TOKEN__':
+        print(t)
+except: pass
+" 2>/dev/null)
+    if [ -n "$EXISTING_TOKEN" ]; then
+        GITHUB_TOKEN_VALUE="$EXISTING_TOKEN"
+        echo "  检测到已有 GITHUB_TOKEN，自动保留"
+    fi
+fi
 
-GITHUB_TOKEN_PLACEHOLDER="__GITHUB_TOKEN__"
+# ---- 6. 生成 mcp.json ----
+echo "[6/6] 生成 mcp.json..."
 
 sed -e "s|__PYTHON_BIN__|$PYTHON_BIN|g" \
     -e "s|__BIN_DIR__|$BIN_DIR|g" \
     -e "s|__MCP_DIR__|$MCP_DIR|g" \
     -e "s|__STATA_CWD__|$STATA_CWD|g" \
+    -e "s|__GITHUB_TOKEN__|$GITHUB_TOKEN_VALUE|g" \
     "$SCRIPT_DIR/mcp.template.json" > "$MCP_JSON"
 
 echo "  已生成: $MCP_JSON"
