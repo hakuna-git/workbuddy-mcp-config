@@ -36,6 +36,14 @@
 | 安装依赖 | 🤖+✋ | WorkBuddy 可执行 brew/pip 安装 |
 | 信任 MCP | ✋ 手动 | 需在 WorkBuddy 连接器管理页面点击 |
 
+## macOS 特别说明
+
+如果你在 macOS 上部署，WorkBuddy 很可能遇到代码签名冲突（managed Python 的 Team ID 与 pip 预编译扩展不匹配）。如果出现 `ENOENT` 或 `Connection closed` 错误，请查看 [docs/macos-notes.md](./docs/macos-notes.md) 中的解决方案。
+
+简要修复步骤：
+1. 把 `scripts/zotero-mcp-wrapper.sh` 复制到 `~/.workbuddy/mcp/`
+2. 修改 `~/.workbuddy/mcp.json` 中 zotero 的 command 为 `/bin/bash`，args 为 wrapper 路径
+
 ## 部署后验证
 
 部署完成后，让 WorkBuddy 测试 MCP 连接:

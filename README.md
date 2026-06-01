@@ -9,11 +9,14 @@ mcp-config/
 ├── mcp.template.json          # MCP 配置模板（用占位符替代路径/Token）
 ├── setup.sh                   # 一键部署脚本
 ├── scripts/                   # 自建 MCP 脚本
-│   └── github_reader_mcp.py   # GitHub 文件读取/搜索 MCP（纯标准库，零依赖）
+│   ├── github_reader_mcp.py   # GitHub 文件读取/搜索 MCP（纯标准库，零依赖）
+│   └── zotero-mcp-wrapper.sh  # macOS 代码签名问题 Wrapper
 ├── docs/                      # 各 MCP 配置文档
 │   ├── stata_config.md
-│   └── zotero_config.md
+│   ├── zotero_config.md
+│   └── macos-notes.md         # macOS 部署注意事项
 ├── .gitignore
+├── DEPLOY.md
 └── README.md
 ```
 
@@ -78,3 +81,4 @@ graph LR
 - 克隆无需认证（公开仓库），但 **push 需要 Token** — WorkBuddy 会读取 `~/.workbuddy/mcp.json` 中的 Token 来认证，见 [DEPLOY.md](./DEPLOY.md)
 - 自建 MCP 脚本（`scripts/`）直接复制到 `~/.workbuddy/mcp/`
 - 每次修改 MCP 配置后提交此仓库，新机器 pull 即可同步
+- **macOS 用户** — 部署前请先阅读 [docs/macos-notes.md](./docs/macos-notes.md)，避免代码签名问题
