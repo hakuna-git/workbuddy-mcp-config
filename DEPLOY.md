@@ -2,7 +2,7 @@
 
 > 把下面的提示词复制给新机器上的 WorkBuddy，它会自动完成部署。
 >
-> **如果你 fork 了本仓库**，请把下面出现的 `hakuna-git` 替换为你的 GitHub 用户名。
+> **第一步：** [Fork 本仓库](https://github.com/hakuna-git/workbuddy-mcp-config/fork)，然后把提示词中的 `你的用户名/workbuddy-mcp-config` 换成你的 fork 地址。
 
 ## 前置准备
 
@@ -13,8 +13,8 @@
 ```
 请帮我部署 MCP 配置：
 
-1. 克隆仓库:
-   git clone https://github.com/hakuna-git/workbuddy-mcp-config.git /tmp/workbuddy-mcp-config
+1. 克隆仓库（请替换为你的 fork 地址）:
+   git clone https://github.com/你的用户名/workbuddy-mcp-config.git /tmp/workbuddy-mcp-config
 
 2. 运行部署脚本（将 /path/to/your/project 换成你的实际项目目录）:
    cd /tmp/workbuddy-mcp-config && bash setup.sh --stata-cwd=/path/to/your/project
@@ -57,7 +57,5 @@ github-mcp v2.0 已包含写操作，直接通过 MCP 推送，无需 git push�
 ```
 请帮我把 workbuddy-mcp-config 仓库的这些修改推送到 GitHub:
 - README.md: 更新 xxx
-仓库: hakuna-git/workbuddy-mcp-config
+仓库: 你的用户名/workbuddy-mcp-config
 ```
-
-> Fork 用户请将仓库地址替换为 `你的用户名/workbuddy-mcp-config`。

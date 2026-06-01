@@ -19,11 +19,14 @@ mcp-config/
 
 ## 快速开始（新机器）
 
-### 方式一：让 WorkBuddy 帮你部署（推荐）
+### 方式一：Fork 后部署（推荐）
 
-在新机器上打开 WorkBuddy，复制 [DEPLOY.md](./DEPLOY.md) 中的提示词发给它，WorkBuddy 会自动克隆仓库、运行脚本、引导你完成手动步骤。
+1. Fork 本仓库到自己的 GitHub 账号
+2. 在新机器上打开 WorkBuddy，将 [DEPLOY.md](./DEPLOY.md) 中的提示词复制给它
+3. 把提示词里的仓库地址换为 `你的用户名/workbuddy-mcp-config`
+4. WorkBuddy 会自动克隆、部署、引导你填入 Token 和信任 MCP
 
-### 方式二：手动部署
+### 方式二：直接克隆（不自定义）
 
 ```bash
 # 1. 克隆仓库
@@ -69,37 +72,26 @@ github-mcp v2.0 包含读写操作，Token 需在 [GitHub Settings → Personal 
 
 > `public_repo` 仅能操作公开仓库，推荐直接开 `repo` 全量。
 
-## 第三方使用
+## 自定义维护
 
-如果你的团队/同行也想用这套配置：
+Fork 后如需调整配置：
 
-**直接克隆即用：**
-```bash
-git clone https://github.com/hakuna-git/workbuddy-mcp-config.git
-bash setup.sh --stata-cwd=/your/project
-# 填入自己的 GITHUB_TOKEN，信任 MCP 即可
-```
-脚本自动检测 Python / 二进制目录，兼容任意 macOS。
+1. 按需修改 `mcp.template.json`（增减 MCP、调整参数）
+2. 通过 MCP 推送修改到你的 fork
+3. 其他机器 `git pull` 即可同步
 
-**如需自定义并自行维护：**
-1. Fork 本仓库到自己的账号
-2. 将 `DEPLOY.md` 和 `README.md` 中的仓库地址替换为你的 fork 地址
-3. 按需修改 `mcp.template.json`（增减 MCP、调整配置）
-4. 通过 MCP 推送你的修改
-
-**跨平台：** 脚本依赖 `brew` 安装依赖，非 macOS 用户手动安装 `uv` 和 `zotero-mcp-server` 即可。
+**跨平台：** 脚本通过 `brew` 安装依赖，非 macOS 用户手动 `pip install uv zotero-mcp-server` 即可。
 
 ## 工作流
 
 ```mermaid
 graph LR
-    A[clone 仓库] --> B[setup.sh]
-    B --> C[自动检测路径]
-    C --> D[替换占位符]
-    D --> E[生成 mcp.json]
-    E --> F[手动填 Token]
-    F --> G[WorkBuddy 信任 MCP]
-    G --> H[MCP 推送修改]
+    A[Fork 仓库] --> B[clone]
+    B --> C[setup.sh]
+    C --> D[生成 mcp.json]
+    D --> E[手动填 Token]
+    E --> F[信任 MCP]
+    F --> G[MCP 推送修改]
 ```
 
 ## 注意事项
