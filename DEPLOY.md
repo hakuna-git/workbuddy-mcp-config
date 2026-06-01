@@ -18,9 +18,8 @@
    - 哪些占位符已自动填充
    - 哪些步骤需要我手动完成（如填入 GITHUB_TOKEN、安装依赖、信任 MCP）
 
-4. 然后引导我逐项完成手动步骤，包括：
-   - 填入 GITHUB_TOKEN 后，配置 git remote 以支持后续 push:
-     "读取 ~/.workbuddy/mcp.json 中的 GITHUB_TOKEN，然后用它配置 /tmp/workbuddy-mcp-config 的 git remote，让我以后能直接 git push"
+4. 然后引导我逐项完成手动步骤（填入 GITHUB_TOKEN、安装依赖、信任 MCP）。
+   Token 填入后 github-mcp 即获得写权限，后续直接用 MCP 推送。
 ```
 
 ## WorkBuddy 会做什么
@@ -36,14 +35,6 @@
 | 安装依赖 | 🤖+✋ | WorkBuddy 可执行 brew/pip 安装 |
 | 信任 MCP | ✋ 手动 | 需在 WorkBuddy 连接器管理页面点击 |
 
-## macOS 特别说明
-
-如果你在 macOS 上部署，WorkBuddy 很可能遇到代码签名冲突（managed Python 的 Team ID 与 pip 预编译扩展不匹配）。如果出现 `ENOENT` 或 `Connection closed` 错误，请查看 [docs/macos-notes.md](./docs/macos-notes.md) 中的解决方案。
-
-简要修复步骤：
-1. 把 `scripts/zotero-mcp-wrapper.sh` 复制到 `~/.workbuddy/mcp/`
-2. 修改 `~/.workbuddy/mcp.json` 中 zotero 的 command 为 `/bin/bash`，args 为 wrapper 路径
-
 ## 部署后验证
 
 部署完成后，让 WorkBuddy 测试 MCP 连接:
@@ -55,11 +46,11 @@
 
 ## 部署后维护（修改配置并推送）
 
-部署完成后，git remote 是纯 HTTPS 不带凭据的，直接 push 会失败。
-让 WorkBuddy 帮你推送，它会读取 mcp.json 里的 Token：
+github-mcp v2.0 已包含写操作，直接通过 MCP 推送，无需 git push：
 
 ```
-请帮我把 workbuddy-mcp-config 仓库的修改推送到 GitHub。
-读取 ~/.workbuddy/mcp.json 中的 GITHUB_TOKEN，用它做 git push 认证。
-仓库路径: /tmp/workbuddy-mcp-config
+请帮我把 workbuddy-mcp-config 仓库的这些修改推送到 GitHub:
+- README.md: 更新 xxx
+- DEPLOY.md: 更新 yyy
+仓库: hakuna-git/workbuddy-mcp-config
 ```

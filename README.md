@@ -9,14 +9,11 @@ mcp-config/
 ├── mcp.template.json          # MCP 配置模板（用占位符替代路径/Token）
 ├── setup.sh                   # 一键部署脚本
 ├── scripts/                   # 自建 MCP 脚本
-│   ├── github_reader_mcp.py   # GitHub 文件读取/搜索 MCP（纯标准库，零依赖）
-│   └── zotero-mcp-wrapper.sh  # macOS 代码签名问题 Wrapper
+│   └── github_reader_mcp.py   # GitHub 读写 MCP v2.0（9 tools，纯标准库）
 ├── docs/                      # 各 MCP 配置文档
 │   ├── stata_config.md
-│   ├── zotero_config.md
-│   └── macos-notes.md         # macOS 部署注意事项
+│   └── zotero_config.md
 ├── .gitignore
-├── DEPLOY.md
 └── README.md
 ```
 
@@ -59,7 +56,7 @@ pip install zotero-mcp-server
 | `__PYTHON_BIN__` | Python 3 路径 | 优先 WorkBuddy 托管版，回退系统版 |
 | `__BIN_DIR__` | 二进制目录 | 检测 `~/.local/bin` → `~/.cargo/bin` |
 | `__MCP_DIR__` | MCP 脚本目录 | 固定为 `~/.workbuddy/mcp/` |
-| `__STATA_CWD__` | Stata 工作目录 | `--stata-cwd` 参数或当前 pwd |
+| `__STATA_CWD__` | Stata 工作目录 | `--stata-cwd` 参数，未指定则保留占位符 |
 | `__GITHUB_TOKEN__` | GitHub Token | **手动填入**（不入库） |
 
 ## 工作流
@@ -72,13 +69,13 @@ graph LR
     D --> E[生成 mcp.json]
     E --> F[手动填 Token]
     F --> G[WorkBuddy 信任 MCP]
+    G --> H[MCP 推送修改]
 ```
 
 ## 注意事项
 
 - **mcp.template.json 不可直接使用** — 必须通过 setup.sh 生成
 - **GITHUB_TOKEN 永不入库** — 已在 .gitignore 中排除含 Token 的文件
-- 克隆无需认证（公开仓库），但 **push 需要 Token** — WorkBuddy 会读取 `~/.workbuddy/mcp.json` 中的 Token 来认证，见 [DEPLOY.md](./DEPLOY.md)
+- 部署后 github-mcp 即拥有读写权限，直接通过 MCP 推送，无需手动 git push
 - 自建 MCP 脚本（`scripts/`）直接复制到 `~/.workbuddy/mcp/`
 - 每次修改 MCP 配置后提交此仓库，新机器 pull 即可同步
-- **macOS 用户** — 部署前请先阅读 [docs/macos-notes.md](./docs/macos-notes.md)，避免代码签名问题
