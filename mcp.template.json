@@ -1,0 +1,50 @@
+{
+  "_comment": "模板文件 — 请勿直接使用。运行 setup.sh 生成 ~/.workbuddy/mcp.json",
+  "_placeholders": {
+    "__BIN_DIR__": "二进制目录，通常是 ~/.local/bin 或 uv tool dir",
+    "__PYTHON_BIN__": "Python 3 解释器路径",
+    "__MCP_DIR__": "本仓库克隆后的 scripts 目录路径",
+    "__STATA_CWD__": "Stata 工作目录，留空则使用 pwd",
+    "__GITHUB_TOKEN__": "GitHub Personal Access Token，手动填入"
+  },
+  "mcpServers": {
+    "connector-proxy": {
+      "type": "http",
+      "url": "http://127.0.0.1:62152/mcp",
+      "description": "Aggregated proxy containing MCP servers: none",
+      "disabled": true
+    },
+    "zotero": {
+      "command": "__BIN_DIR__/zotero-mcp",
+      "args": [
+        "serve"
+      ],
+      "env": {
+        "ZOTERO_LOCAL": "true",
+        "ZOTERO_LOCAL_PORT": "23119",
+        "ZOTERO_READ_ONLY": "true"
+      },
+      "disabled": false
+    },
+    "stata-mcp": {
+      "command": "__BIN_DIR__/uvx",
+      "args": [
+        "stata-mcp"
+      ],
+      "env": {
+        "STATA_MCP__CWD": "__STATA_CWD__"
+      },
+      "disabled": false
+    },
+    "github-mcp": {
+      "command": "__PYTHON_BIN__",
+      "args": [
+        "__MCP_DIR__/github_reader_mcp.py"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "__GITHUB_TOKEN__"
+      },
+      "disabled": false
+    }
+  }
+}

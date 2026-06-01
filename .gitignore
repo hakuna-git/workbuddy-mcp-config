@@ -1,0 +1,14 @@
+# MCP 配置仓库 — .gitignore
+
+# 绝对不要入库：包含真实路径和 Token 的生成文件
+mcp.json
+
+# 系统文件
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.pyc
