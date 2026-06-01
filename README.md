@@ -59,6 +59,36 @@ pip install zotero-mcp-server
 | `__STATA_CWD__` | Stata 工作目录 | `--stata-cwd` 参数，未指定则保留占位符 |
 | `__GITHUB_TOKEN__` | GitHub Token | **手动填入**（不入库） |
 
+### Token 权限要求
+
+github-mcp v2.0 包含读写操作，Token 需在 [GitHub Settings → Personal Access Tokens](https://github.com/settings/tokens) 创建时勾选：
+
+| Scope | 用途 | 必需 |
+|-------|------|------|
+| `repo` | 读写仓库内容、创建仓库 | ✅ 必需 |
+
+> `public_repo` 仅能操作公开仓库，推荐直接开 `repo` 全量。
+
+## 第三方使用
+
+如果你的团队/同行也想用这套配置：
+
+**直接克隆即用：**
+```bash
+git clone https://github.com/hakuna-git/workbuddy-mcp-config.git
+bash setup.sh --stata-cwd=/your/project
+# 填入自己的 GITHUB_TOKEN，信任 MCP 即可
+```
+脚本自动检测 Python / 二进制目录，兼容任意 macOS。
+
+**如需自定义并自行维护：**
+1. Fork 本仓库到自己的账号
+2. 将 `DEPLOY.md` 和 `README.md` 中的仓库地址替换为你的 fork 地址
+3. 按需修改 `mcp.template.json`（增减 MCP、调整配置）
+4. 通过 MCP 推送你的修改
+
+**跨平台：** 脚本依赖 `brew` 安装依赖，非 macOS 用户手动安装 `uv` 和 `zotero-mcp-server` 即可。
+
 ## 工作流
 
 ```mermaid

@@ -1,6 +1,12 @@
 # WorkBuddy 新机器 MCP 部署指令
 
 > 把下面的提示词复制给新机器上的 WorkBuddy，它会自动完成部署。
+>
+> **如果你 fork 了本仓库**，请把下面出现的 `hakuna-git` 替换为你的 GitHub 用户名。
+
+## 前置准备
+
+部署前需先创建 GitHub Personal Access Token（[Settings → Tokens](https://github.com/settings/tokens)），勾选 **`repo`** scope（读写仓库必需）。
 
 ## 提示词（复制这段发给 WorkBuddy）
 
@@ -51,6 +57,7 @@ github-mcp v2.0 已包含写操作，直接通过 MCP 推送，无需 git push�
 ```
 请帮我把 workbuddy-mcp-config 仓库的这些修改推送到 GitHub:
 - README.md: 更新 xxx
-- DEPLOY.md: 更新 yyy
 仓库: hakuna-git/workbuddy-mcp-config
 ```
+
+> Fork 用户请将仓库地址替换为 `你的用户名/workbuddy-mcp-config`。
