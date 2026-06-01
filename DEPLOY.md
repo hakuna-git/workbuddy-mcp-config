@@ -10,8 +10,8 @@
 1. 克隆仓库:
    git clone https://github.com/hakuna-git/workbuddy-mcp-config.git /tmp/workbuddy-mcp-config
 
-2. 运行部署脚本:
-   cd /tmp/workbuddy-mcp-config && bash setup.sh
+2. 运行部署脚本（将 /path/to/your/project 换成你的实际项目目录）:
+   cd /tmp/workbuddy-mcp-config && bash setup.sh --stata-cwd=/path/to/your/project
 
 3. 完成后告诉我:
    - 生成的文件路径

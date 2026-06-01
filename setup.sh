@@ -55,11 +55,20 @@ cp "$SCRIPT_DIR/docs/"*.md "$MCP_DIR/" 2>/dev/null || true
 echo "  已复制到 $MCP_DIR"
 
 # ---- 4. 处理 Stata 工作目录 ----
-STATA_CWD="${1:-}"
+STATA_CWD=""
+# 解析 --stata-cwd 参数
+for arg in "$@"; do
+    if [[ "$arg" == --stata-cwd=* ]]; then
+        STATA_CWD="${arg#*=}"
+    fi
+done
+
 if [ -z "$STATA_CWD" ]; then
-    # 从旧配置读取或使用默认值
-    STATA_CWD="$(pwd)"
-    echo "  Stata 工作目录未指定，使用当前目录: $STATA_CWD"
+    # 未指定则保留占位符，不强制填写（stata-mcp 非必需）
+    STATA_CWD="__STATA_CWD__"
+    echo "  Stata 工作目录未指定，保留占位符（如需使用 stata-mcp 请手动编辑 mcp.json）"
+else
+    echo "  Stata 工作目录: $STATA_CWD"
 fi
 
 # ---- 5. 生成 mcp.json ----
