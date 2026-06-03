@@ -4,6 +4,8 @@
 Read tools: get_file_contents, search_repositories, list_commits, list_branches
 Write tools: create_repository, update_repository, create_or_update_file,
               delete_file, batch_commit_files
+Long-doc tools: push_file_from_path, batch_commit_from_paths
+               (read from disk, no content in MCP message)
 
 Uses GITHUB_TOKEN env var for authentication.
 """
@@ -267,6 +269,145 @@ def handle_delete_file(params):
     return {"path": path, "deleted": True, "commit_sha": data.get("commit", {}).get("sha", "")[:8]}
 
 
+def handle_push_file_from_path(params):
+    """Push a local file to GitHub. File content is NOT embedded in the MCP
+    message — the script reads it from disk. Ideal for long documents.
+
+    If the file already exists on GitHub, sha is fetched automatically.
+    """
+    owner = params.get("owner", "")
+    repo = params.get("repo", "")
+    path = params.get("path", "")
+    local_path = params.get("local_path", "")
+    message = params.get("message", f"Push {path}")
+    branch = params.get("branch", "main")
+
+    # Read file from disk
+    try:
+        with open(local_path, "r", encoding="utf-8") as f:
+            content = f.read()
+    except FileNotFoundError:
+        return {"error": f"File not found: {local_path}"}
+    except UnicodeDecodeError:
+        return {"error": f"Cannot read file as utf-8: {local_path}"}
+
+    # Try to get existing file sha (for update)
+    sha = None
+    existing, _ = gh_api(f"/repos/{owner}/{repo}/contents/{path}?ref={branch}")
+    if isinstance(existing, dict) and existing.get("sha"):
+        sha = existing["sha"]
+
+    body = {
+        "message": message,
+        "content": base64.b64encode(content.encode("utf-8")).decode("ascii"),
+        "branch": branch,
+    }
+    if sha:
+        body["sha"] = sha
+
+    data, status = gh_api(f"/repos/{owner}/{repo}/contents/{path}", "PUT", body)
+    if status not in (200, 201):
+        return {"error": data.get("message", str(data)), "status": status}
+
+    return {
+        "path": data.get("content", {}).get("path", path),
+        "url": data.get("content", {}).get("html_url"),
+        "commit_sha": data.get("commit", {}).get("sha", "")[:8],
+        "size": len(content),
+        "updated": bool(sha),
+    }
+
+
+def handle_batch_commit_from_paths(params):
+    """Push multiple local files to GitHub in a single commit via Git Data API.
+    File contents are read from disk — not embedded in the MCP message.
+
+    files: [{"path": "repo/path.md", "local_path": "/absolute/local/path"}, ...]
+    """
+    owner = params.get("owner", "")
+    repo = params.get("repo", "")
+    branch = params.get("branch", "main")
+    message = params.get("message", "Batch commit from paths")
+    files = params.get("files", [])
+
+    if not files:
+        return {"error": "No files provided"}
+
+    # Read all files from disk
+    file_contents = []
+    for f in files:
+        try:
+            with open(f["local_path"], "r", encoding="utf-8") as fh:
+                file_contents.append({"path": f["path"], "content": fh.read()})
+        except FileNotFoundError:
+            return {"error": f"File not found: {f['local_path']}"}
+        except UnicodeDecodeError:
+            return {"error": f"Cannot read as utf-8: {f['local_path']}"}
+
+    # Step 1: Get latest commit on branch
+    ref_data, ref_status = gh_api(f"/repos/{owner}/{repo}/git/ref/heads/{branch}")
+    if ref_status != 200:
+        return {"error": f"Cannot get branch ref: {ref_data.get('message', ref_status)}"}
+    base_commit_sha = ref_data["object"]["sha"]
+
+    # Step 2: Get base tree
+    commit_data, _ = gh_api(f"/repos/{owner}/{repo}/git/commits/{base_commit_sha}")
+    base_tree_sha = commit_data["tree"]["sha"]
+
+    # Step 3: Create blobs for each file
+    tree_items = []
+    for fc in file_contents:
+        blob_data, blob_status = gh_api(
+            f"/repos/{owner}/{repo}/git/blobs",
+            "POST",
+            {"content": fc["content"], "encoding": "utf-8"},
+        )
+        if blob_status not in (200, 201):
+            return {"error": f"Failed to create blob for {fc['path']}: {blob_data.get('message')}"}
+        tree_items.append({
+            "path": fc["path"],
+            "mode": "100644",
+            "type": "blob",
+            "sha": blob_data["sha"],
+        })
+
+    # Step 4: Create new tree
+    tree_data, tree_status = gh_api(
+        f"/repos/{owner}/{repo}/git/trees",
+        "POST",
+        {"base_tree": base_tree_sha, "tree": tree_items},
+    )
+    if tree_status not in (200, 201):
+        return {"error": f"Failed to create tree: {tree_data.get('message')}"}
+    new_tree_sha = tree_data["sha"]
+
+    # Step 5: Create commit
+    new_commit, commit_status = gh_api(
+        f"/repos/{owner}/{repo}/git/commits",
+        "POST",
+        {"message": message, "tree": new_tree_sha, "parents": [base_commit_sha]},
+    )
+    if commit_status not in (200, 201):
+        return {"error": f"Failed to create commit: {new_commit.get('message')}"}
+
+    # Step 6: Update branch ref
+    _, ref_patch_status = gh_api(
+        f"/repos/{owner}/{repo}/git/refs/heads/{branch}",
+        "PATCH",
+        {"sha": new_commit["sha"], "force": False},
+    )
+    if ref_patch_status != 200:
+        return {"error": "Failed to update ref"}
+
+    return {
+        "commit_sha": new_commit["sha"][:8],
+        "full_sha": new_commit["sha"],
+        "files_committed": len(file_contents),
+        "paths": [fc["path"] for fc in file_contents],
+        "message": message,
+    }
+
+
 def handle_batch_commit_files(params):
     """Commit multiple files in a single commit via Git Data API.
 
@@ -499,6 +640,52 @@ TOOLS = {
             },
         },
     },
+    "push_file_from_path": {
+        "handler": handle_push_file_from_path,
+        "description": "Push a local file to GitHub. File content is read from disk "
+                       "(not embedded in MCP message) — ideal for long documents. "
+                       "Auto-detects sha for updates.",
+        "schema": {
+            "type": "object",
+            "required": ["owner", "repo", "path", "local_path", "message"],
+            "properties": {
+                "owner": {"type": "string"},
+                "repo": {"type": "string"},
+                "path": {"type": "string", "description": "Target path in the repo"},
+                "local_path": {"type": "string", "description": "Absolute path to local file"},
+                "message": {"type": "string", "description": "Commit message"},
+                "branch": {"type": "string", "default": "main"},
+            },
+        },
+    },
+    "batch_commit_from_paths": {
+        "handler": handle_batch_commit_from_paths,
+        "description": "Push multiple local files to GitHub in a single commit. "
+                       "File contents are read from disk — not embedded in MCP message. "
+                       "Best for pushing several long documents at once.",
+        "schema": {
+            "type": "object",
+            "required": ["owner", "repo", "files", "message"],
+            "properties": {
+                "owner": {"type": "string"},
+                "repo": {"type": "string"},
+                "branch": {"type": "string", "default": "main"},
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "path": {"type": "string", "description": "Target path in repo"},
+                            "local_path": {"type": "string", "description": "Absolute path to local file"},
+                        },
+                        "required": ["path", "local_path"],
+                    },
+                    "description": "Array of {path, local_path} objects",
+                },
+                "message": {"type": "string", "description": "Commit message"},
+            },
+        },
+    },
 }
 
 
@@ -508,7 +695,7 @@ def handle_initialize(request_id, params):
     return {
         "protocolVersion": "2024-11-05",
         "capabilities": {"tools": {}},
-        "serverInfo": {"name": "github-mcp", "version": "2.0.0"},
+        "serverInfo": {"name": "github-mcp", "version": "2.1.0"},
     }
 
 
