@@ -2,6 +2,19 @@
 
 ## v2.1.0 (2026-06-01)
 
+### 长文档推送支持
+
+`batch_commit_files` / `create_or_update_file` 要求文件内容嵌入 MCP JSON 消息，长文档（>100 行）容易触发消息体大小限制。
+
+**新增工具：**
+- `push_file_from_path` — 指定本地文件路径，脚本自行读取并推送（内容不经过 MCP 消息）
+- `batch_commit_from_paths` — 同上，批量版本
+
+**设计要点：**
+- MCP 只传 `local_path`（字符串），不传文件内容
+- 自动检测 sha，已存在的文件走更新逻辑
+- 纯标准库，零依赖
+
 ### macOS 部署支持
 
 **新增文档：**
