@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v2.2.0 (2026-06-04)
+
+### zotero 部署重构 — 告别代码签名坑
+
+**核心修复：** zotero-mcp 不再依赖 `$BIN_DIR/zotero-mcp` 软链接，改用与 github-mcp 一致的 `managed Python + launcher` 模式。
+
+**变更：**
+- `mcp.template.json`: zotero `command` 改为 `__PYTHON_BIN__`，`args` 改为 `__MCP_DIR__/zotero_launcher.py`
+- 新增 `scripts/zotero_launcher.py` — 启动器，内置 macOS 签名自修复 + 环境变量设置
+- **弃用** `scripts/zotero-mcp-wrapper.sh` — bash wrapper 在 WorkBuddy 沙箱下反而不稳定
+- `setup.sh` 新增自动安装 zotero-mcp-server + macOS 签名检测修复
+
+**效果：** 新 Mac 上 `bash setup.sh` 一键跑完，只需手动填 GITHUB_TOKEN + 信任 MCP。
+
 ## v2.1.0 (2026-06-01)
 
 ### 长文档推送支持
@@ -23,7 +37,7 @@
 - 更新 `README.md` — 目录结构和注意事项中加入 macOS 文档引用
 
 **新增脚本：**
-- `scripts/zotero-mcp-wrapper.sh` — 可复用 wrapper 模板，用 `/bin/bash` 绕过 macOS managed Python 代码签名问题
+- `scripts/zotero-mcp-wrapper.sh` — 可复用 wrapper 模板（v2.2.0 已弃用）
 
 ## v2.0.0 (2026-06-01)
 
