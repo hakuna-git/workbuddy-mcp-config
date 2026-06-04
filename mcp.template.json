@@ -15,15 +15,10 @@
       "disabled": true
     },
     "zotero": {
-      "command": "__BIN_DIR__/zotero-mcp",
+      "command": "__PYTHON_BIN__",
       "args": [
-        "serve"
+        "__MCP_DIR__/zotero_launcher.py"
       ],
-      "env": {
-        "ZOTERO_LOCAL": "true",
-        "ZOTERO_LOCAL_PORT": "23119",
-        "ZOTERO_READ_ONLY": "true"
-      },
       "disabled": false
     },
     "stata-mcp": {

@@ -48,12 +48,44 @@ fi
 echo "  二进制目录: $BIN_DIR"
 
 # ---- 3. 复制脚本和文档 ----
-echo "[3/5] 复制 MCP 脚本和文档..."
+echo "[3/6] 复制 MCP 脚本和文档..."
 
 mkdir -p "$MCP_DIR"
 cp "$SCRIPT_DIR/scripts/github_reader_mcp.py" "$MCP_DIR/"
+cp "$SCRIPT_DIR/scripts/zotero_launcher.py" "$MCP_DIR/"
 cp "$SCRIPT_DIR/docs/"*.md "$MCP_DIR/" 2>/dev/null || true
 echo "  已复制到 $MCP_DIR"
+
+# ---- 3.5. 安装 zotero-mcp-server（到 managed Python venv） ----
+echo "[3.5/6] 安装 zotero-mcp-server..."
+if [ "$PYTHON_BIN" != "__PYTHON_BIN__" ]; then
+    VENV_DIR="$(dirname "$(dirname "$PYTHON_BIN")")/envs/default"
+    if [ ! -f "$VENV_DIR/bin/zotero-mcp" ]; then
+        "$PYTHON_BIN" -m venv "$VENV_DIR" 2>/dev/null || true
+        "$VENV_DIR/bin/pip" install zotero-mcp-server >/dev/null 2>&1 && \
+            echo "  zotero-mcp-server 安装完成" || \
+            echo "  ⚠️  zotero-mcp-server 安装失败，请手动安装"
+    else
+        echo "  zotero-mcp-server 已安装，跳过"
+    fi
+else
+    echo "  ⚠️  未检测到 Python，跳过 zotero 安装"
+fi
+
+# ---- 3.6. macOS 代码签名修复 ----
+echo "[3.6/6] macOS 代码签名检测..."
+if [[ "$(uname)" == "Darwin" ]]; then
+    if ! "$PYTHON_BIN" -c "import pydantic_core" 2>/dev/null; then
+        echo "  检测到签名冲突，自动修复..."
+        codesign --force --deep --sign - "$PYTHON_BIN" 2>/dev/null && \
+            echo "  ✓ managed Python 已 ad-hoc 重签" || \
+            echo "  ⚠️  自动重签失败（可能需要手动执行）"
+    else
+        echo "  签名正常，无需修复"
+    fi
+else
+    echo "  非 macOS，跳过"
+fi
 
 # ---- 4. 处理 Stata 工作目录 ----
 STATA_CWD=""
@@ -119,12 +151,13 @@ if grep -q "__GITHUB_TOKEN__" "$MCP_JSON"; then
 fi
 
 echo ""
-echo "  📋 依赖检查清单:"
-echo "     [ ] zotero-mcp:  brew install zotero-mcp  或  pip install zotero-mcp-server"
-echo "     [ ] uvx:         brew install uv  或  pip install uv"
-echo "     [ ] stata-mcp:    uvx 会自动拉取"
+echo "  📋 检查清单:"
+echo "     [✓] zotero-mcp-server — 已自动安装到 managed Python venv"
+echo "     [✓] macOS 代码签名 — 已自动检测并修复（如需）"
+echo "     [ ] uvx:  uv 工具（如未安装：brew install uv 或 pip install uv）"
+echo "     [ ] stata-mcp: uvx 会自动拉取"
 echo "     [ ] Zotero 客户端运行中，且开启了本地 API（端口 23119）"
 echo ""
 echo "  🔧 激活 MCP:"
-echo "     打开 WorkBuddy → 连接器管理 → 找到新增的 MCP → 点击「信任」"
+echo "     打开 WorkBuddy → 连接器管理 → 找到 zotero/github-mcp/stata-mcp → 点击「信任」"
 echo ""

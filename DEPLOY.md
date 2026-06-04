@@ -36,10 +36,11 @@
 | 检测 Python | 🤖 自动 | 优先 WorkBuddy 托管版，回退系统版 |
 | 检测二进制目录 | 🤖 自动 | `~/.local/bin` 或自建 |
 | 复制脚本和文档 | 🤖 自动 | 到 `~/.workbuddy/mcp/` |
+| 安装 zotero-mcp-server | 🤖 自动 | 自动 pip 安装到 managed Python venv |
+| macOS 代码签名修复 | 🤖 自动 | 检测签名冲突，自动 ad-hoc 重签 |
 | 保留已有 Token | 🔒 自动 | 重复运行不会丢失 GITHUB_TOKEN |
 | 生成 mcp.json | 🤖 自动 | 占位符替换为本地路径，新增 MCP 自动合并 |
 | 填入 GITHUB_TOKEN | ✋ 手动 | 首次部署需手动填写（后续同步自动保留） |
-| 安装依赖 | 🤖+✋ | WorkBuddy 可执行 brew/pip 安装 |
 | 信任 MCP | ✋ 手动 | 需在 WorkBuddy 连接器管理页面点击 |
 
 ## 部署后验证
